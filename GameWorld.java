@@ -1,3 +1,10 @@
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -5,6 +12,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.*;
+import org.lwjgl.util.vector.*;
 
 public class GameWorld {
 	
@@ -157,7 +165,10 @@ public class GameWorld {
 		
 		// Left click
 		if (Mouse.isButtonDown(0)) { 
-			System.out.println(Mouse.getX() + " " + Mouse.getY());
+			System.out.println(Mouse.getX() + ", " + Mouse.getY());
+			
+			float mouse[] = getMousePosition(Mouse.getX(), Mouse.getY());
+			System.out.println(mouse[0] + ", " + mouse[1] + ", " + mouse[2]);
 		}
 		
 	}
@@ -196,5 +207,44 @@ public class GameWorld {
 	// Method to move the Hero
 	public void updateHeroLocation() {
 		
+	}
+	
+	// Convert mouse coordinates to world coordinates
+	static public float[] getMousePosition(int mouseX, int mouseY) {
+
+		int winX = mouseX;
+		int winY = mouseY;
+		
+		IntBuffer viewport = BufferUtils.createIntBuffer(16);
+		FloatBuffer modelview = BufferUtils.createFloatBuffer(16);
+		FloatBuffer projection = BufferUtils.createFloatBuffer(16);
+		
+		FloatBuffer positionNear = BufferUtils.createFloatBuffer(3);
+		FloatBuffer positionFar = BufferUtils.createFloatBuffer(3);
+		
+		GL11.glGetFloat( GL11.GL_MODELVIEW_MATRIX, modelview );
+		GL11.glGetFloat( GL11.GL_PROJECTION_MATRIX, projection );
+		GL11.glGetInteger( GL11.GL_VIEWPORT, viewport );
+		
+		GLU.gluUnProject((float)winX, (float)winY, 0, modelview, projection, viewport, positionNear);
+		GLU.gluUnProject((float)winX, (float)winY, 1, modelview, projection, viewport, positionFar);
+		
+		//Fix Y plane at 0
+		float pos[] = new float[3];
+		float r[] = new float[3];
+		float m;
+		float fixedYPlane = 0;
+		
+		r[0] = positionFar.get(0) - positionNear.get(0);
+		r[1] = positionFar.get(1) - positionNear.get(1);
+		r[2] = positionFar.get(2) - positionNear.get(2);
+
+		m = (fixedYPlane - positionNear.get(1)) / r[1];
+		
+		pos[0] = positionNear.get(0) + (m * r[0]);
+		pos[1] = fixedYPlane;
+		pos[2] = positionNear.get(2) + (m * r[2]);
+
+		return pos;
 	}
 }
