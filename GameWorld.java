@@ -11,8 +11,20 @@ public class GameWorld {
 	private int width = 640;
 	private int height = 480;
 	
-	private int zNear = 1000;
-	private int zFar = -1000;
+	private float zNear = 0.1f;
+	private float zFar = 60f;
+	private float frustAngle = 60f;
+	
+	private float cameraPosX = 0f;
+	private float cameraPosY = 2f;
+	private float cameraPosZ = 6f;
+	private float cameraTargetX = 0f;
+	private float cameraTargetY = 0f;
+	private float cameraTargetZ = 0f;
+	
+	private double playerPosX = 0;
+	private double playerPosY = 0;
+	private double playerPosZ = 0;
 	
 	// Method to begin setup
 	public void start() {
@@ -33,6 +45,8 @@ public class GameWorld {
 			Display.update();
 		
 		}
+		
+		Display.destroy();
 	}
 	
 	// Method to initialize the display
@@ -54,9 +68,11 @@ public class GameWorld {
 		
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		//GL11.glOrtho(-(width/2), (width/2), -(height/2), (height/2), zNear, zFar);
-		GLU.gluPerspective(60.0f, (float)width/(float)height, 0.1f, 60.0f);
-		GL11.glTranslated(0.0, 0.0, -4.0);
+		GLU.gluPerspective(frustAngle, (float)width/(float)height, zNear, zFar);
+		GLU.gluLookAt(
+				cameraPosX, cameraPosY, cameraPosZ,				// eye position
+				cameraTargetX, cameraTargetY, cameraTargetZ, 	// target to look at (origin)
+				0f, 1f, 0f);									// specify up axis
 		
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
@@ -80,13 +96,36 @@ public class GameWorld {
 	public void drawHero() {
 		
 		GL11.glPushMatrix();
-		GL11.glColor3d(0.0, 1.0, 0.0);
-		GL11.glBegin(GL11.GL_TRIANGLES);
-			GL11.glVertex3d(0, 0, -5);
-			GL11.glVertex3d(-5, 0, 0);
-			GL11.glVertex3d(5, 0, 0);
+		GL11.glColor3d(0d, 1d, 0d);
+		
+		GL11.glBegin(GL11.GL_QUADS);	//Back
+			GL11.glVertex3d(0.25d, 0.25d, 1d);
+			GL11.glVertex3d(-0.25d, 0.25d, 1d);
+			GL11.glVertex3d(-0.25d, -0.25d, 1d);
+			GL11.glVertex3d(0.25d, -0.25d, 1d);
+		GL11.glEnd();
+		GL11.glBegin(GL11.GL_TRIANGLES); // Top
+			GL11.glVertex3d(0.25d, 0.25d, 1d);
+			GL11.glVertex3d(0d, 0d, 0d);
+			GL11.glVertex3d(-0.25d, 0.25d, 1d);
+		GL11.glEnd();
+		GL11.glBegin(GL11.GL_TRIANGLES); // Left
+			GL11.glVertex3d(-0.25d, 0.25d, 1d);
+			GL11.glVertex3d(0d, 0d, 0d);
+			GL11.glVertex3d(-0.25d, -0.25d, 1d);
+		GL11.glEnd();
+		GL11.glBegin(GL11.GL_TRIANGLES); // Bottom
+			GL11.glVertex3d(-0.25d, -0.25d, 1d);
+			GL11.glVertex3d(0d, 0d, 0d);
+			GL11.glVertex3d(0.25d, -0.25d, 1d);
+		GL11.glEnd();
+		GL11.glBegin(GL11.GL_TRIANGLES); // Right
+			GL11.glVertex3d(0.25d, -0.25d, 1d);
+			GL11.glVertex3d(0d, 0d, 0d);
+			GL11.glVertex3d(0.25d, 0.25d, 1d);
 		GL11.glEnd();
 		GL11.glPopMatrix();
+		
 	}
 	
 	// Method to update the map
@@ -98,14 +137,25 @@ public class GameWorld {
 		GL11.glLoadIdentity();
 			
 		GL11.glBegin(GL11.GL_LINES);
+		GL11.glColor3d(1.0, 0.0, 0.0);
 		
+		for (int x = -5; x <= 5; x++) {
+			GL11.glVertex3d((double)x + playerPosX, 0d + playerPosY, -5d + playerPosZ);
+			GL11.glVertex3d((double)x + playerPosX, 0d + playerPosY, 5d + playerPosZ);
+		}
+		
+		for (int z = -5; z <= 5; z++) {
+			GL11.glVertex3d(5d + playerPosX, 0d + playerPosY, (double)z + playerPosZ);
+			GL11.glVertex3d(-5d + playerPosX, 0d + playerPosY, (double)z + playerPosZ);
+		}
+		GL11.glEnd();
 		
 	}
 	
 	// Method to poll the mouse
 	public void pollMouse() {
 		
-		// Right click
+		// Left click
 		if (Mouse.isButtonDown(0)) { 
 			System.out.println(Mouse.getX() + " " + Mouse.getY());
 		}
@@ -121,15 +171,19 @@ public class GameWorld {
 				switch (Keyboard.getEventKey()) {
 					case Keyboard.KEY_W:
 						System.out.println("W");
+						playerPosZ += 0.1;
 						break;
 					case Keyboard.KEY_A:
 						System.out.println("A");
+						playerPosX += 0.1;
 						break;
 					case Keyboard.KEY_S:
 						System.out.println("S");
+						playerPosZ -= 0.1;
 						break;
 					case Keyboard.KEY_D:
 						System.out.println("D");
+						playerPosX -= 0.1;
 						break;
 					default:
 						break;
