@@ -96,8 +96,10 @@ public class GameWorld {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
+			
+		GL11.glBegin(GL11.GL_LINES);
 		
-		GLU.glutWireCube(2);
+		
 	}
 	
 	// Method to poll the mouse
