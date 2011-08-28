@@ -8,7 +8,7 @@
  */
 public class Main {
 	public static void main (String[] args) {
-		
+		//TODO: splash screen/main menu need to look into lwjgl capabilities for this
 		GameWorld gw = new GameWorld();
 		
 		gw.loadMap();

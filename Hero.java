@@ -12,7 +12,7 @@ public class Hero extends WorldEntity {
 	
 	public Hero() {
 		super();
-		//TODO Link attributes, skills, inventory
+		//TODO Link attributes, skills, inventory, animations, textures
 	}
 
 	@Override

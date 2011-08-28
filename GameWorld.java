@@ -64,6 +64,8 @@ public class GameWorld {
 	// Method to initialize the display
 	public void init() {
 	
+		//TODO: lighting, shading, fog, particles
+		
 		try {
 			
 			Display.setDisplayMode( new DisplayMode( width, height ) );
@@ -112,6 +114,9 @@ public class GameWorld {
 	// Method to update the map
 	public void updateMap() {
 		
+		//TODO: The map should have its own update method, and should manage the
+		//display of its many world entities
+		
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
@@ -135,6 +140,8 @@ public class GameWorld {
 	// Method to poll the mouse
 	public void pollMouse() {
 		
+		//TODO: Implement camera angle changes with mouse wheel scroll
+		
 		// Left click
 		if (Mouse.isButtonDown(0)) { 
 			
@@ -146,6 +153,9 @@ public class GameWorld {
 	
 	// Method to poll the keyboard
 	public void pollKeyboard() {
+		
+		//TODO: Implement jumping with the spacebar, the ability to keep 
+		//a key depressed to move
 		
 		// While there are key events on the event buffer
 		while (Keyboard.next()) {
