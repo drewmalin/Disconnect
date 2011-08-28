@@ -1,6 +1,3 @@
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -12,7 +9,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.*;
-import org.lwjgl.util.vector.*;
 
 public class GameWorld {
 	
@@ -23,12 +19,7 @@ public class GameWorld {
 	private float zFar = 60f;
 	private float frustAngle = 60f;
 	
-	private float cameraPosX = 0f;
-	private float cameraPosY = 2f;
-	private float cameraPosZ = 6f;
-	private float cameraTargetX = 0f;
-	private float cameraTargetY = 0f;
-	private float cameraTargetZ = 0f;
+	private Camera camera;
 	
 	private double playerPosX = 0;
 	private double playerPosY = 0;
@@ -36,6 +27,11 @@ public class GameWorld {
 	
 	// Method to begin setup
 	public void start() {
+		
+		camera = new Camera();
+		camera.setPosition(0f, 2f, 6f);
+		camera.setTarget(0f, 0f, 0f);
+		camera.setUp(0f, 1f, 0f);
 		
 		init();
 		
@@ -78,9 +74,9 @@ public class GameWorld {
 		GL11.glLoadIdentity();
 		GLU.gluPerspective(frustAngle, (float)width/(float)height, zNear, zFar);
 		GLU.gluLookAt(
-				cameraPosX, cameraPosY, cameraPosZ,				// eye position
-				cameraTargetX, cameraTargetY, cameraTargetZ, 	// target to look at (origin)
-				0f, 1f, 0f);									// specify up axis
+				camera.getPosition(0), camera.getPosition(1), camera.getPosition(2),	// eye position
+				camera.getTarget(0), camera.getTarget(1), camera.getTarget(2), 			// target to look at (origin)
+				camera.getUp(0), camera.getUp(1), camera.getUp(2));						// specify up axis
 		
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
@@ -178,6 +174,7 @@ public class GameWorld {
 		
 		// While there are key events on the event buffer
 		while (Keyboard.next()) {
+			//Key depressed
 			if (Keyboard.getEventKeyState()) {
 				switch (Keyboard.getEventKey()) {
 					case Keyboard.KEY_W:
@@ -199,6 +196,9 @@ public class GameWorld {
 					default:
 						break;
 				}
+			}
+			else {
+				//Key released
 			}
 		}
 		
