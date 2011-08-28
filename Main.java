@@ -1,14 +1,19 @@
+/*
+ *  Main.java
+ *  Project Disconnect
+ *
+ *  Created by Drew Malin on 8/27/2011.
+ *  Copyright 2011 Drew Malin. All rights reserved.
+ *
+ */
 public class Main {
 	public static void main (String[] args) {
 		
-		System.out.println("So it begins...");
 		GameWorld gw = new GameWorld();
 		
 		gw.loadMap();
 		gw.loadWorld();
 		gw.start();
 		
-		//SUPA CHEEESEEE
-		//Change to test Git
 	}
 }

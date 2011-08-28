@@ -1,3 +1,11 @@
+/*
+ *  GameWorld.java
+ *  Project Disconnect
+ *
+ *  Created by Drew Malin on 8/27/2011.
+ *  Copyright 2011 Drew Malin. All rights reserved.
+ *
+ */
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
