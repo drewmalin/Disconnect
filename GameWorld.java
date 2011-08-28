@@ -28,10 +28,7 @@ public class GameWorld {
 	private float frustAngle = 60f;
 	
 	private Camera camera;
-	
-	private double playerPosX = 0;
-	private double playerPosY = 0;
-	private double playerPosZ = 0;
+	private Hero hero;
 	
 	// Method to begin setup
 	public void start() {
@@ -40,6 +37,9 @@ public class GameWorld {
 		camera.setPosition(0f, 2f, 6f);
 		camera.setTarget(0f, 0f, 0f);
 		camera.setUp(0f, 1f, 0f);
+		
+		hero = new Hero();
+		hero.setPositionArray(0f, 0f, 0f);
 		
 		init();
 		
@@ -142,7 +142,6 @@ public class GameWorld {
 	
 	// Method to update the map
 	public void updateMap() {
-		updateHeroLocation();
 		
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
@@ -152,13 +151,13 @@ public class GameWorld {
 		GL11.glColor3d(1.0, 0.0, 0.0);
 		
 		for (int x = -5; x <= 5; x++) {
-			GL11.glVertex3d((double)x + playerPosX, 0d + playerPosY, -5d + playerPosZ);
-			GL11.glVertex3d((double)x + playerPosX, 0d + playerPosY, 5d + playerPosZ);
+			GL11.glVertex3d((double)x + hero.getPosition(0), 0d + hero.getPosition(1), -5d + hero.getPosition(2));
+			GL11.glVertex3d((double)x + hero.getPosition(0), 0d + hero.getPosition(1), 5d + hero.getPosition(2));
 		}
 		
 		for (int z = -5; z <= 5; z++) {
-			GL11.glVertex3d(5d + playerPosX, 0d + playerPosY, (double)z + playerPosZ);
-			GL11.glVertex3d(-5d + playerPosX, 0d + playerPosY, (double)z + playerPosZ);
+			GL11.glVertex3d(5d + hero.getPosition(0), 0d + hero.getPosition(1), (double)z + hero.getPosition(2));
+			GL11.glVertex3d(-5d + hero.getPosition(0), 0d + hero.getPosition(1), (double)z + hero.getPosition(2));
 		}
 		GL11.glEnd();
 		
@@ -169,7 +168,6 @@ public class GameWorld {
 		
 		// Left click
 		if (Mouse.isButtonDown(0)) { 
-			System.out.println(Mouse.getX() + ", " + Mouse.getY());
 			
 			float mouse[] = getMousePosition(Mouse.getX(), Mouse.getY());
 			System.out.println(mouse[0] + ", " + mouse[1] + ", " + mouse[2]);
@@ -186,20 +184,16 @@ public class GameWorld {
 			if (Keyboard.getEventKeyState()) {
 				switch (Keyboard.getEventKey()) {
 					case Keyboard.KEY_W:
-						System.out.println("W");
-						playerPosZ += 0.1;
+						hero.changePositionZ(0.1f);
 						break;
 					case Keyboard.KEY_A:
-						System.out.println("A");
-						playerPosX += 0.1;
+						hero.changePositionX(0.1f);
 						break;
 					case Keyboard.KEY_S:
-						System.out.println("S");
-						playerPosZ -= 0.1;
+						hero.changePositionZ(-0.1f);
 						break;
 					case Keyboard.KEY_D:
-						System.out.println("D");
-						playerPosX -= 0.1;
+						hero.changePositionX(-0.1f);
 						break;
 					default:
 						break;
@@ -209,11 +203,6 @@ public class GameWorld {
 				//Key released
 			}
 		}
-		
-	}
-	
-	// Method to move the Hero
-	public void updateHeroLocation() {
 		
 	}
 	
