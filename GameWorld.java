@@ -53,7 +53,7 @@ public class GameWorld {
 			pollMouse();
 			pollKeyboard();
 			updateMap();
-			drawHero();
+			drawEntities();
 			Display.update();
 		
 		}
@@ -104,40 +104,9 @@ public class GameWorld {
 		
 	}
 	
-	// Method to draw the character
-	public void drawHero() {
-		
-		GL11.glPushMatrix();
-		GL11.glColor3d(0d, 1d, 0d);
-		
-		GL11.glBegin(GL11.GL_QUADS);	//Back
-			GL11.glVertex3d(0.25d, 0.25d, 1d);
-			GL11.glVertex3d(-0.25d, 0.25d, 1d);
-			GL11.glVertex3d(-0.25d, -0.25d, 1d);
-			GL11.glVertex3d(0.25d, -0.25d, 1d);
-		GL11.glEnd();
-		GL11.glBegin(GL11.GL_TRIANGLES); // Top
-			GL11.glVertex3d(0.25d, 0.25d, 1d);
-			GL11.glVertex3d(0d, 0d, 0d);
-			GL11.glVertex3d(-0.25d, 0.25d, 1d);
-		GL11.glEnd();
-		GL11.glBegin(GL11.GL_TRIANGLES); // Left
-			GL11.glVertex3d(-0.25d, 0.25d, 1d);
-			GL11.glVertex3d(0d, 0d, 0d);
-			GL11.glVertex3d(-0.25d, -0.25d, 1d);
-		GL11.glEnd();
-		GL11.glBegin(GL11.GL_TRIANGLES); // Bottom
-			GL11.glVertex3d(-0.25d, -0.25d, 1d);
-			GL11.glVertex3d(0d, 0d, 0d);
-			GL11.glVertex3d(0.25d, -0.25d, 1d);
-		GL11.glEnd();
-		GL11.glBegin(GL11.GL_TRIANGLES); // Right
-			GL11.glVertex3d(0.25d, -0.25d, 1d);
-			GL11.glVertex3d(0d, 0d, 0d);
-			GL11.glVertex3d(0.25d, 0.25d, 1d);
-		GL11.glEnd();
-		GL11.glPopMatrix();
-		
+	// Method to draw the entities within the world
+	public void drawEntities() {
+		hero.draw();
 	}
 	
 	// Method to update the map
@@ -212,21 +181,46 @@ public class GameWorld {
 		int winX = mouseX;
 		int winY = mouseY;
 		
+		//--------------------- Memory setup ----------------------------//
 		IntBuffer viewport = BufferUtils.createIntBuffer(16);
 		FloatBuffer modelview = BufferUtils.createFloatBuffer(16);
 		FloatBuffer projection = BufferUtils.createFloatBuffer(16);
 		
 		FloatBuffer positionNear = BufferUtils.createFloatBuffer(3);
 		FloatBuffer positionFar = BufferUtils.createFloatBuffer(3);
+		//---------------------------------------------------------------//
 		
+		//--------------------- Save the view matrices ------------------//
 		GL11.glGetFloat( GL11.GL_MODELVIEW_MATRIX, modelview );
 		GL11.glGetFloat( GL11.GL_PROJECTION_MATRIX, projection );
 		GL11.glGetInteger( GL11.GL_VIEWPORT, viewport );
+		//---------------------------------------------------------------//
 		
+		/*
+		 * The following logic:
+		 * gluUnProject takes the mouse coordinates, the three view matrices, and an empty
+		 * byte buffer to store the 3D world coordinate of the mouse click. By providing 0
+		 * for the mouse click's z value, the position calculated is on the near z clipping
+		 * plane. Likewise, providing a 1 for this value puts the 3D point on the far z
+		 * clipping plane. These 3D coordinates are stored in positionNear and positionFar.
+		 */
 		GLU.gluUnProject((float)winX, (float)winY, 0, modelview, projection, viewport, positionNear);
 		GLU.gluUnProject((float)winX, (float)winY, 1, modelview, projection, viewport, positionFar);
 		
-		//Fix Y plane at 0
+		/*
+		 * The following logic:
+		 * We now effectively have the beginning and end points of the ray that is produced
+		 * by a mouse click. The direction vector is determined like so:
+		 * 				r = <P2x, P2y, P2z> - <P1x, P1y, P1z>
+		 * This vector is used in the parametric form for the equation of a line:
+		 * 				x = P1x + mrx
+		 * 				y = P1y + mry
+		 * 				z = P1z + mrz
+		 * We know that the "ground level" is the plane in which y = 0. Therefore if we fix
+		 * this value, we can solve for m (m = (y - P1y) / ry). The newly acquired m value
+		 * allows us to easily solve for the x and y positions on the y = 0 plane.
+		 */
+
 		float pos[] = new float[3];
 		float r[] = new float[3];
 		float m;

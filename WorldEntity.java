@@ -1,3 +1,11 @@
+/*
+ *  WorldEntity.java
+ *  Project Disconnect
+ *
+ *  Created by Drew Malin on 8/27/2011.
+ *  Copyright 2011 Drew Malin. All rights reserved.
+ *
+ */
 public abstract class WorldEntity {
 	public int id;
 	public float position[];
@@ -9,6 +17,8 @@ public abstract class WorldEntity {
 		colorID = new int[3];
 	}
 	
+	public abstract void draw();
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -45,4 +55,5 @@ public abstract class WorldEntity {
 	public String getName() {
 		return name;
 	}
+	
 }
