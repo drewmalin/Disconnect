@@ -7,7 +7,7 @@
  *
  */
 public class Main {
-	public static void main (String[] args) {
+	public static void main (String[] args) throws InterruptedException {
 		//TODO: splash screen/main menu need to look into lwjgl capabilities for this
 		GameWorld gw = new GameWorld();
 		

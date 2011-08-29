@@ -30,8 +30,12 @@ public class GameWorld {
 	private Camera camera;
 	private Hero hero;
 	
+	private Timer timer;
+	private long frameDelta;
+	private long FRAME_LENGTH_MINIMUM = 10000000;
+	
 	// Method to begin setup
-	public void start() {
+	public void start() throws InterruptedException {
 		
 		camera = new Camera();
 		camera.setPosition(0f, 2f, 6f);
@@ -42,6 +46,7 @@ public class GameWorld {
 		hero.setPositionArray(0f, 0f, 0f);
 		
 		init();
+		timer = new Timer(); //The Timer constructor establishes an origin time.
 		
 		/* isCloseRequested comes in the form of the X on a window being pushed,
 		   a CTRL-C keystroke, etc. Continue updating until this happens. update()
@@ -50,11 +55,16 @@ public class GameWorld {
 		
 		while (!Display.isCloseRequested()) {
 			
-			pollMouse();
-			pollKeyboard();
-			updateMap();
-			drawEntities();
-			Display.update();
+			frameDelta = timer.getNanoDelta(); //This value will get passed to all the updates that are time dependent.
+			if(frameDelta < FRAME_LENGTH_MINIMUM) { //If very little time has passed since the last update, yield the cpu
+				Thread.sleep(10);
+			}else{
+				pollMouse();
+				pollKeyboard();
+				updateMap();
+				drawEntities();
+				Display.update();
+			}
 		
 		}
 		
