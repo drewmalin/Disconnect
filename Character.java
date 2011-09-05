@@ -112,11 +112,9 @@ public abstract class Character extends WorldEntity {
 	
 	//Cross product. Thank you Wikipedia.
 	private boolean cross(float[] a, float[] b) {
-		float newVect[] = new float[3];
-		newVect[0] = a[1]*b[2] - a[2]*b[1];
-		newVect[1] = a[2]*b[0] - a[0]*b[2];
-		newVect[2] = a[0]*b[1] - a[1]*b[0];
+
+		float yVal = a[2]*b[0] - a[0]*b[2];
 		
-		return newVect[1] >= 0 ? true : false;
+		return yVal >= 0 ? true : false;
 	}
 }

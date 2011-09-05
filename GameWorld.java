@@ -37,8 +37,32 @@ public class GameWorld {
 	private long frameDelta;
 	private long FRAME_LENGTH_MINIMUM = 10000000;
 	
+	//--------------------- Memory setup ----------------------------//
+	private static IntBuffer viewport;
+	private static FloatBuffer modelview;
+	private static FloatBuffer projection;
+	
+	private static FloatBuffer positionNear;
+	private static FloatBuffer positionFar;
+	
+
+	static float pos[];
+	static float r[];
+	//---------------------------------------------------------------//
+	
 	// Method to begin setup
 	public void start() throws InterruptedException {
+		
+		viewport = BufferUtils.createIntBuffer(16);
+		modelview = BufferUtils.createFloatBuffer(16);
+		projection = BufferUtils.createFloatBuffer(16);
+		
+		positionNear = BufferUtils.createFloatBuffer(3);
+		positionFar = BufferUtils.createFloatBuffer(3);
+		
+
+		pos = new float[3];
+		r = new float[3];
 		
 		camera = new Camera();
 		camera.setPosition(0f, 7f, 7f);
@@ -196,17 +220,6 @@ public class GameWorld {
 
 	static public float[] getMousePosition(int mouseX, int mouseY) {
 
-		int winX = mouseX;
-		int winY = mouseY;
-		
-		//--------------------- Memory setup ----------------------------//
-		IntBuffer viewport = BufferUtils.createIntBuffer(16);
-		FloatBuffer modelview = BufferUtils.createFloatBuffer(16);
-		FloatBuffer projection = BufferUtils.createFloatBuffer(16);
-		
-		FloatBuffer positionNear = BufferUtils.createFloatBuffer(3);
-		FloatBuffer positionFar = BufferUtils.createFloatBuffer(3);
-		//---------------------------------------------------------------//
 		
 		//--------------------- Save the view matrices ------------------//
 		GL11.glGetFloat( GL11.GL_MODELVIEW_MATRIX, modelview );
@@ -222,8 +235,8 @@ public class GameWorld {
 		 * plane. Likewise, providing a 1 for this value puts the 3D point on the far z
 		 * clipping plane. These 3D coordinates are stored in positionNear and positionFar.
 		 */
-		GLU.gluUnProject((float)winX, (float)winY, 0, modelview, projection, viewport, positionNear);
-		GLU.gluUnProject((float)winX, (float)winY, 1, modelview, projection, viewport, positionFar);
+		GLU.gluUnProject((float)mouseX, (float)mouseY, 0, modelview, projection, viewport, positionNear);
+		GLU.gluUnProject((float)mouseX, (float)mouseY, 1, modelview, projection, viewport, positionFar);
 		
 		/*
 		 * The following logic:
@@ -239,8 +252,6 @@ public class GameWorld {
 		 * allows us to easily solve for the x and y positions on the y = 0 plane.
 		 */
 
-		float pos[] = new float[3];
-		float r[] = new float[3];
 		float m;
 		float fixedYPlane = 0;
 		
