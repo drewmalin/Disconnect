@@ -1,5 +1,5 @@
 /*
- *  WorldEntity.java
+ *  Timer.java
  *  Project Disconnect
  *
  *  Created by Ben Roye on 8/29/2011.

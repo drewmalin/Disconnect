@@ -63,4 +63,16 @@ public class Camera {
 		assert ((index >= 0) && index <3);
 		return up[index];
 	}
+
+	public void changePositionX(float delta) {
+		position[0] += delta;
+	}
+	
+	public void changePositionY(float delta) {
+		position[1] += delta;
+	}
+	
+	public void changePositionZ(float delta) {
+		position[2] += delta;
+	}
 }

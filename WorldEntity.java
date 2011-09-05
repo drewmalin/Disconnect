@@ -9,11 +9,13 @@
 public abstract class WorldEntity {
 	public int id;
 	public float position[];
+	public float rotation[];
 	public String name;
 	public int colorID[];
 	
 	public WorldEntity() {
 		position = new float[3];
+		rotation = new float[3];
 		colorID = new int[3];
 	}
 	
@@ -43,17 +45,24 @@ public abstract class WorldEntity {
 	public void changePositionX(float delta) {
 		position[0] += delta;
 	}
-	
 	public void changePositionY(float delta) {
 		position[1] += delta;
 	}
-	
 	public void changePositionZ(float delta) {
 		position[2] += delta;
 	}
 	
 	public String getName() {
 		return name;
+	}
+	
+	public float getRotation(int index) {
+		assert ((index >= 0) && index <3);
+		return rotation[index];	
+	}
+	
+	public void changeRotationY(float a) {
+		rotation[1] += a;
 	}
 	
 }

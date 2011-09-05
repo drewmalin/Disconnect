@@ -20,15 +20,18 @@ import org.lwjgl.util.glu.*;
 
 public class GameWorld {
 	
-	private int width = 640;
-	private int height = 480;
+	private int width = 1024;
+	private int height = 768;
+	private float diagonal = .70710678f;
 	
 	private float zNear = 0.1f;
-	private float zFar = 60f;
+	private float zFar = 1000f;
 	private float frustAngle = 60f;
 	
 	private Camera camera;
 	private Hero hero;
+	private Map map;
+	float mouse[];
 	
 	private Timer timer;
 	private long frameDelta;
@@ -38,9 +41,11 @@ public class GameWorld {
 	public void start() throws InterruptedException {
 		
 		camera = new Camera();
-		camera.setPosition(0f, 2f, 6f);
+		camera.setPosition(0f, 7f, 7f);
 		camera.setTarget(0f, 0f, 0f);
 		camera.setUp(0f, 1f, 0f);
+		
+		mouse = new float[3];
 		
 		hero = new Hero();
 		hero.setPositionArray(0f, 0f, 0f);
@@ -77,125 +82,118 @@ public class GameWorld {
 		//TODO: lighting, shading, fog, particles
 		
 		try {
-			
 			Display.setDisplayMode( new DisplayMode( width, height ) );
 			Display.create();
-		
+			
 		} catch (LWJGLException e) {
 			
 			e.printStackTrace();
 			System.exit(1);
-		
 		}
-		
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
+		
 		GLU.gluPerspective(frustAngle, (float)width/(float)height, zNear, zFar);
 		GLU.gluLookAt(
-				camera.getPosition(0), camera.getPosition(1), camera.getPosition(2),	// eye position
-				camera.getTarget(0), camera.getTarget(1), camera.getTarget(2), 			// target to look at (origin)
-				camera.getUp(0), camera.getUp(1), camera.getUp(2));						// specify up axis
+				camera.getPosition(0),	camera.getPosition(1), 	camera.getPosition(2),
+				camera.getTarget(0), 	camera.getTarget(1), 	camera.getTarget(2),
+				camera.getUp(0), 		camera.getUp(1), 		camera.getUp(2));
+		
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
 	}
 	
-	// Method to load the map
-	public void loadMap() {
-		
-		//TODO: Read in map (from text file?)
-		
+	
+	public void loadMap() {	
+		map = new Map("GridWorld.txt");	
 	}
 	
-	// Method to load the world entities
+	
 	public void loadWorld() {
-		
 		//TODO: Read in the objects that make up the game world
-		
-	}
+	}	
 	
-	// Method to draw the entities within the world
+
 	public void drawEntities() {
 		hero.draw();
+		
+		GL11.glColor3f(0f, 0f, 1f);
+		GL11.glBegin(GL11.GL_QUADS);	//Back
+			GL11.glVertex3d(  1,  1, 0d );
+			GL11.glVertex3d( -1,  1, 0d );
+			GL11.glVertex3d( -1, -1, 0d );
+			GL11.glVertex3d(  1, -1, 0d );
+		GL11.glEnd();
 	}
 	
-	// Method to update the map
+	
 	public void updateMap() {
-		
-		//TODO: The map should have its own update method, and should manage the
-		//display of its many world entities
-		
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
-		GL11.glLoadIdentity();
-			
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glColor3d(1.0, 0.0, 0.0);
 		
-		for (int x = -5; x <= 5; x++) {
-			GL11.glVertex3d((double)x + hero.getPosition(0), 0d + hero.getPosition(1), -5d + hero.getPosition(2));
-			GL11.glVertex3d((double)x + hero.getPosition(0), 0d + hero.getPosition(1), 5d + hero.getPosition(2));
-		}
-		
-		for (int z = -5; z <= 5; z++) {
-			GL11.glVertex3d(5d + hero.getPosition(0), 0d + hero.getPosition(1), (double)z + hero.getPosition(2));
-			GL11.glVertex3d(-5d + hero.getPosition(0), 0d + hero.getPosition(1), (double)z + hero.getPosition(2));
-		}
-		GL11.glEnd();
-		
+		GL11.glPushMatrix();
+			GL11.glLoadIdentity();
+			GL11.glTranslatef(hero.getPosition(0), hero.getPosition(1), hero.getPosition(2));
+			map.draw();
+		GL11.glPopMatrix();
 	}
 	
-	// Method to poll the mouse
+	
 	public void pollMouse() {
-		
 		//TODO: Implement camera angle changes with mouse wheel scroll
 		
-		// Left click
-		if (Mouse.isButtonDown(0)) { 
-			
-			float mouse[] = getMousePosition(Mouse.getX(), Mouse.getY());
-			System.out.println(mouse[0] + ", " + mouse[1] + ", " + mouse[2]);
-		}
+		//Updated regardless of mouse click
+		mouse = getMousePosition(Mouse.getX(), Mouse.getY());
+		hero.setTargetVect(mouse[0], mouse[1], mouse[2]);
 		
+		if (Mouse.isButtonDown(0)) { 		// Left click
+			mouse = getMousePosition(Mouse.getX(), Mouse.getY());
+			System.out.println(mouse[0] + ", " + mouse[1] + ", " + mouse[2]);
+		//	hero.setTargetVect(mouse[0], mouse[1], mouse[2]);
+		}
 	}
 	
-	// Method to poll the keyboard
+
 	public void pollKeyboard() {
 		
-		//TODO: Implement jumping with the spacebar, the ability to keep 
-		//a key depressed to move
+		//TODO: Implement jumping with the spacebar
 		
-		// While there are key events on the event buffer
-		while (Keyboard.next()) {
-			//Key depressed
-			if (Keyboard.getEventKeyState()) {
-				switch (Keyboard.getEventKey()) {
-					case Keyboard.KEY_W:
-						hero.changePositionZ(0.1f);
-						break;
-					case Keyboard.KEY_A:
-						hero.changePositionX(0.1f);
-						break;
-					case Keyboard.KEY_S:
-						hero.changePositionZ(-0.1f);
-						break;
-					case Keyboard.KEY_D:
-						hero.changePositionX(-0.1f);
-						break;
-					default:
-						break;
-				}
+		if (Keyboard.isKeyDown(Keyboard.KEY_W) && Keyboard.isKeyDown(Keyboard.KEY_A)) {
+			hero.changePositionZ(hero.movementRate * diagonal);
+			hero.changePositionX(hero.movementRate * diagonal);
+		}
+		else if (Keyboard.isKeyDown(Keyboard.KEY_W) && Keyboard.isKeyDown(Keyboard.KEY_D)) {
+			hero.changePositionZ(hero.movementRate * diagonal);
+			hero.changePositionX(-hero.movementRate * diagonal);
+		}
+		else if (Keyboard.isKeyDown(Keyboard.KEY_S) && Keyboard.isKeyDown(Keyboard.KEY_A)) {
+			hero.changePositionZ(-hero.movementRate * diagonal);
+			hero.changePositionX(hero.movementRate * diagonal);
+		}
+		else if (Keyboard.isKeyDown(Keyboard.KEY_S) && Keyboard.isKeyDown(Keyboard.KEY_D)) {
+			hero.changePositionZ(-hero.movementRate * diagonal);
+			hero.changePositionX(-hero.movementRate * diagonal);
+		}
+		else {
+			if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
+				hero.changePositionZ(hero.movementRate);
 			}
-			else {
-				//Key released
+			if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
+				hero.changePositionX(hero.movementRate);
+			}
+			if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
+				hero.changePositionZ(-hero.movementRate);
+			}
+			if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
+				hero.changePositionX(-hero.movementRate);
 			}
 		}
-		
 	}
 	
-	// Convert mouse coordinates to world coordinates
+
 	static public float[] getMousePosition(int mouseX, int mouseY) {
 
 		int winX = mouseX;
