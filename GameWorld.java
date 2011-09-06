@@ -143,14 +143,6 @@ public class GameWorld {
 
 	public void drawEntities() {
 		hero.draw();
-		
-		GL11.glColor3f(0f, 0f, 1f);
-		GL11.glBegin(GL11.GL_QUADS);	//Back
-			GL11.glVertex3d(  1,  1, 0d );
-			GL11.glVertex3d( -1,  1, 0d );
-			GL11.glVertex3d( -1, -1, 0d );
-			GL11.glVertex3d(  1, -1, 0d );
-		GL11.glEnd();
 	}
 	
 	

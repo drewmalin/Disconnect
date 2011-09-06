@@ -63,7 +63,7 @@ public abstract class Character extends WorldEntity {
 			//translate into degrees.
 			remainingRads = calculateAngleDiscrepency();
 			remainingAngle = remainingRads * (180 / (float) Math.PI);
-			
+
 			//Adjust angle, use the cross product to determine the correct direction
 			//of rotation. If the cross product results with a positive y value, then
 			//the fastest way to rotate is counterclockwise. If the y value is negative, 
@@ -107,6 +107,12 @@ public abstract class Character extends WorldEntity {
 		// need to solve for, then divide by, their lengths)
 		
 		float theta = (float)Math.acos(aDotB);
+		
+		// Was getting dot product value greater than 1 in some specific circumstances
+		// (value was something like 1.0000000001) which is outside of the domain for 
+		// arc cosine. If this ever occurs, force theta to be 0 (as if aDotB were 1)
+		if (aDotB > 1)
+			theta = 0;
 		return theta;
 	}
 	
